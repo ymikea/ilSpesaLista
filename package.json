@@ -5,14 +5,14 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "start": "set NODE_ENV=development&& node server.js",
+    "start-prod": "set NODE_ENV=production&& node server.js"
   },
   "author": "Yekaalo Habtemichael",
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
     "mongoose": "^6.0.12",
-    "nodemon": "^2.0.14",
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^8.5.1"
   }
