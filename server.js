@@ -18,7 +18,9 @@ db.once("open",()=>{console.log("Database started!")})
 
 
 app.use(userRoutes)
-
+app.get("/api",(req, res)=>{
+    res.send("Api IS UP")
+})
 
 app.listen(3000, ()=>{
     console.log("Server Started at port 3000 ...")
