@@ -4,7 +4,7 @@ const mongoose = require("mongoose")
 
 const userRoutes = require('./routes/userRoutes')
 
-
+let port = process.env.PORT || 3000
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
 
@@ -22,6 +22,6 @@ app.get("/api",(req, res)=>{
     res.send("Api IS UP")
 })
 
-app.listen(3000, ()=>{
-    console.log("Server Started at port 3000 ...")
+app.listen(port, ()=>{
+    console.log(`Server Started at port ${port} ...`)
 })
