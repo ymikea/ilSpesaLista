@@ -155,9 +155,9 @@ exports.toBeRestocked = async (req, res)=>{
       }
       await usersModel.updateOne({_id: req.params.id}, {$push:{ "shoppingList": body} });
       await usersModel.updateOne({ _id: req.params.id},{$pull : { "groceryInventory" : {"_id":req.body.id} } } )
-      res.status(200).send({success: "Item Successfully included to Shopping List!"})
+      res.status(200).send({status:"ok"})
    }catch(error){
-      res.status(500).send({error: error})
+      res.status(500).send({status:"bad", error: error})
    }
 }
 
