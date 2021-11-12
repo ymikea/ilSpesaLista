@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 
+
 const shoppingListSchema =  mongoose.Schema({
     itemName:{
         type: String,
@@ -14,6 +15,10 @@ const shoppingListSchema =  mongoose.Schema({
         type: Number,
         required: true,
         default: 1
+    },
+    category:{
+        type: String,
+        default: "Default"
     }
 })
 
@@ -37,6 +42,10 @@ const groceryInventorySchema =  mongoose.Schema({
     },
     cost:{
         type: Number
+    },
+    category:{
+        type: String,
+        default: "Default"
     }
 })
 
@@ -70,7 +79,10 @@ const usersSchema =  mongoose.Schema({
     groceryInventory:{
         type: [groceryInventorySchema],
         default: null
-    }
+    },
+    category:[{
+        type: String
+    }]
 })
 const usersModel = mongoose.model('usersModel', usersSchema,'users')
 module.exports = usersModel
