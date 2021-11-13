@@ -176,7 +176,7 @@ exports.updateItemCategory = async (req, res)=>{
 
    req.body.items.forEach(async element => {
       try{
-         await usersModel.updateOne({_id: req.params.id,  "shoppingList._id" :element }, {$set:{"shoppingList.$.category":req.body.category}})
+         await usersModel.updateOne({_id: req.params.id,  "groceryInventory._id" :element }, {$set:{"groceryInventory.$.category":req.body.category}})
       }catch(error){
          console.error(error)
          doneSafe = false
