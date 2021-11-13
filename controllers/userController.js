@@ -162,7 +162,26 @@ exports.toBeRestocked = async (req, res)=>{
    }
 }
 
+exports.updateCategory = async (req, res)=>{
+   try{
+      let user = await usersModel.updateOne({_id: req.params.id},{$addToSet: { "category": req.body.category} } );
+      res.status(200).send({status:"ok"})
+   }catch(error){
+      res.status(500).send({status:"bad"})
+   }
+}
 
+exports.updateItemCategory = async (req, res)=>{
+   let doneSafe = true
 
-//auto restock - directly order the item from the store and update the item inside grocery
-// inventory 
+   req.body.items.forEach(async element => {
+      try{
+         await usersModel.updateOne({_id: req.params.id,  "shoppingList._id" :element }, {$set:{"shoppingList.$.category":req.body.category}})
+      }catch(error){
+         console.error(error)
+         doneSafe = false
+      }
+   })
+   if (doneSafe) res.status(200).send({status:"ok"})
+   else res.status(500).send({status:"bad"})
+}

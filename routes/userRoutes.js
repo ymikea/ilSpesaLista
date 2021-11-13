@@ -39,4 +39,12 @@ router.route('/done/:id')
 router.route('/toBeRestocked/:id')
 .post(routeHelper.toBeRestocked)
 
+router.route('/updateItemCategory/:id')
+.post(routeHelper.updateItemCategory)
+
+router.route('/updateCategory/:id')
+.post(routeHelper.updateCategory)
+
+
+
 module.exports = router;
