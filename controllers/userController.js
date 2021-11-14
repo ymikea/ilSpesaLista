@@ -72,8 +72,8 @@ exports.addToShoppingList = async (req, res)=>{
    }else{
       try{
          if (req.body.quantity == "") req.body.quantity = 1
-         await usersModel.updateOne({_id: req.params.id}, {$push:{ "shoppingList": req.body } });
-         await usersModel.updateOne({_id: req.params.id},{$addToSet: { category: "Default" } } );
+         await usersModel.updateOne({_id: req.params.id}, {$push:{ "shoppingList.item": req.body } });
+         await usersModel.updateOne({_id: req.params.id},{$addToSet: { "shoppingList.category": "Default" } } );
            res.status(200).send({status:"ok"})
         }catch(error){
            console.log(error)
@@ -85,18 +85,18 @@ exports.addToShoppingList = async (req, res)=>{
 
 //edit item in shopping list - shopping list is a sub-document of users document 
 exports.editFromShoppingList = async (req, res)=>{
-    try{
-        await usersModel.updateOne({_id: req.params.id,  "shoppingList._id" :req.body.id }, {$set:{"shoppingList.$":req.body}})
-        res.status(200).send({status:"ok"})
-     }catch(error){
-      res.status(500).send({status:"bad", error: "Not edited, Please Try again!"})
-     }
+   try{
+       await usersModel.updateOne({_id: req.params.id,  "shoppingList.item._id" :req.body.id }, {$set:{"shoppingList.item.$":req.body}})
+       res.status(200).send({status:"ok"})
+    }catch(error){
+     res.status(500).send({status:"bad", error: "Not edited, Please Try again!"})
+    }
 }
 
 //edit item in grocery Inventory- shopping list is a sub-document of users document 
 exports.editGroceryInventory = async (req, res)=>{
    try{
-       await usersModel.updateOne({_id: req.params.id,  "groceryInventory._id" :req.body.id }, {$set:{"groceryInventory.$":req.body}})
+       await usersModel.updateOne({_id: req.params.id,  "groceryInventory.item._id" :req.body.id }, {$set:{"groceryInventory.item.$":req.body}})
        res.status(200).send({status:"ok"})
     }catch(error){
      res.status(500).send({status:"bad", error: "Not edited, Please Try again!"})
@@ -106,7 +106,7 @@ exports.editGroceryInventory = async (req, res)=>{
 //delete item to shopping list - shopping list is a sub-document of users document 
 exports.deleteFromShoppingList = async (req, res)=>{
     try{
-      const isDeleted  = await usersModel.updateOne({ _id: req.params.id},{$pull : { "shoppingList" : {"_id":req.body.id} } } )
+      const isDeleted  = await usersModel.updateOne({ _id: req.params.id},{$pull : { "shoppingList.item" : {"_id":req.body.id} } } )
       res.status(200).send({status:"ok"})
      }catch(error){
         res.status(500).send({status:"bad", error: error})
@@ -117,7 +117,7 @@ exports.deleteFromShoppingList = async (req, res)=>{
 //delete item to grocery inventory - shopping list is a sub-document of users document 
 exports.deleteFromGrocery = async (req, res)=>{
    try{
-     const isDeleted  = await usersModel.updateOne({ _id: req.params.id},{$pull : { "groceryInventory" : {"_id":req.body.id} } } )
+     const isDeleted  = await usersModel.updateOne({ _id: req.params.id},{$pull : { "groceryInventory.item" : {"_id":req.body.id} } } )
      res.status(200).send({status:"ok"})
     }catch(error){
        res.status(500).send({status:"bad", error: error})
@@ -127,17 +127,18 @@ exports.deleteFromGrocery = async (req, res)=>{
 //On Done move the item in the shopping list to grocery inventory with cost and expiration date included
 exports.done = async (req, res)=>{
    try{
-      let user = await usersModel.findOne({"shoppingList._id" : req.body.id}, {"shoppingList.$" : 1, "_id" : 0})
+      let user = await usersModel.findOne({"shoppingList.item._id" : req.body.id}, {"shoppingList.$" : 1, "_id" : 0})
       let body = {
-         itemName: user.shoppingList[0].itemName,
-         storeFrom: user.shoppingList[0].storeFrom,
-         quantity: user.shoppingList[0].quantity,
+         itemName: user.shoppingList.item[0].itemName,
+         storeFrom: user.shoppingList.item[0].storeFrom,
+         quantity: user.shoppingList.item[0].quantity,
+         section: user.shoppingList.item[0].section,
          cost: req.body.cost,
          expirationData: req.body.expirationData
       }
       //Call the expense function here to calculate the overall expenses
-      await usersModel.updateOne({_id: req.params.id}, {$push:{ "groceryInventory": body} });
-      await usersModel.updateOne({ _id: req.params.id},{$pull : { "shoppingList" : {"_id":req.body.id} } } )
+      await usersModel.updateOne({_id: req.params.id}, {$push:{ "groceryInventory.item": body} });
+      await usersModel.updateOne({ _id: req.params.id},{$pull : { "shoppingList.item" : {"_id":req.body.id} } } )
       res.status(200).send({status:"ok"})
       // res.status(200).send({success: "Item Successfully included to grocery Inventory!"})
    }catch(error){
@@ -148,14 +149,15 @@ exports.done = async (req, res)=>{
 //to be restock - store the item back to shopping list so it can be restocked
 exports.toBeRestocked = async (req, res)=>{
    try{
-      let user = await usersModel.findOne({"groceryInventory._id" : req.body.id}, {"groceryInventory.$" : 1, "_id" : 0})
+      let user = await usersModel.findOne({"groceryInventory.item._id" : req.body.id}, {"groceryInventory.$" : 1, "_id" : 0})
       let body = {
-         itemName: user.groceryInventory[0].itemName,
-         storeFrom: user.groceryInventory[0].storeFrom,
-         quantity: user.groceryInventory[0].quantity,
+         itemName: user.groceryInventory.item[0].itemName,
+         storeFrom: user.groceryInventory.item[0].storeFrom,
+         quantity: user.groceryInventory.item[0].quantity,
+         section: user.groceryInventory.item[0].section
       }
-      await usersModel.updateOne({_id: req.params.id}, {$push:{ "shoppingList": body} });
-      await usersModel.updateOne({ _id: req.params.id},{$pull : { "groceryInventory" : {"_id":req.body.id} } } )
+      await usersModel.updateOne({_id: req.params.id}, {$push:{ "shoppingList.item": body} });
+      await usersModel.updateOne({ _id: req.params.id},{$pull : { "groceryInventory.item" : {"_id":req.body.id} } } )
       res.status(200).send({status:"ok"})
    }catch(error){
       res.status(500).send({status:"bad", error: error})
@@ -164,7 +166,7 @@ exports.toBeRestocked = async (req, res)=>{
 
 exports.updateCategory = async (req, res)=>{
    try{
-      let user = await usersModel.updateOne({_id: req.params.id},{$addToSet: { "category": req.body.category} } );
+      let user = await usersModel.updateOne({_id: req.params.id},{$addToSet: { "shoppingList.category": req.body.category} } );
       res.status(200).send({status:"ok"})
    }catch(error){
       res.status(500).send({status:"bad"})
@@ -176,7 +178,7 @@ exports.updateItemCategory = async (req, res)=>{
 
    req.body.items.forEach(async element => {
       try{
-         await usersModel.updateOne({_id: req.params.id,  "groceryInventory._id" :element }, {$set:{"groceryInventory.$.category":req.body.category}})
+         await usersModel.updateOne({_id: req.params.id,  "shoppingList.item._id" :element }, {$set:{"shoppingList.item.$.section":req.body.category}})
       }catch(error){
          console.error(error)
          doneSafe = false
