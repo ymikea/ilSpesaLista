@@ -15,8 +15,7 @@ const shoppingListSchema =  mongoose.Schema({
         default: 1
     },
     section:{
-        type: String,
-        default: "Default"
+        type: String
     }
 })
 
@@ -42,8 +41,7 @@ const groceryInventorySchema =  mongoose.Schema({
         type: Number
     },
     section:{
-        type: String,
-        default: "Default"
+        type: String
     }
 })
 

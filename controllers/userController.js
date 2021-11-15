@@ -67,13 +67,14 @@ exports.home = async(req,res)=>{
 
 //add item to shopping list - shopping list is a sub-document of users document 
 exports.addToShoppingList = async (req, res)=>{
+   console.log(req.body)
    if(req.body.itemName == "" || req.body.storeFrom == ""){
       res.status(500).send({status:"bad", error: "Not added, Please Try again!"})
    }else{
       try{
          if (req.body.quantity == "") req.body.quantity = 1
          await usersModel.updateOne({_id: req.params.id}, {$push:{ "shoppingList.item": req.body } });
-         await usersModel.updateOne({_id: req.params.id},{$addToSet: { "shoppingList.category": req.body.category } } );
+         await usersModel.updateOne({_id: req.params.id},{$addToSet: { "shoppingList.category": req.body.section } } );
            res.status(200).send({status:"ok"})
         }catch(error){
            console.log(error)
