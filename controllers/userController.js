@@ -168,25 +168,48 @@ exports.toBeRestocked = async (req, res)=>{
 }
 
 exports.updateCategory = async (req, res)=>{
-   try{
-      let user = await usersModel.updateOne({_id: req.params.id},{$addToSet: { "shoppingList.category": req.body.category} } );
-      res.status(200).send({status:"ok"})
-   }catch(error){
-      res.status(500).send({status:"bad"})
+   if(req.body.at == "shoppingList"){
+      try{
+         let user = await usersModel.updateOne({_id: req.params.id},{$addToSet: { "shoppingList.category": req.body.category} } );
+         res.status(200).send({status:"ok"})
+      }catch(error){
+         res.status(500).send({status:"bad"})
+      }
+   }else{
+      try{
+         let user = await usersModel.updateOne({_id: req.params.id},{$addToSet: { "groceryInventory.category": req.body.category} } );
+         res.status(200).send({status:"ok"})
+      }catch(error){
+         res.status(500).send({status:"bad"})
+      }
    }
+   
 }
 
 exports.updateItemCategory = async (req, res)=>{
    let doneSafe = true
-
-   req.body.items.forEach(async element => {
-      try{
-         await usersModel.updateOne({_id: req.params.id,  "shoppingList.item._id" :element }, {$set:{"shoppingList.item.$.section":req.body.category}})
-      }catch(error){
-         console.error(error)
-         doneSafe = false
-      }
-   })
-   if (doneSafe) res.status(200).send({status:"ok"})
-   else res.status(500).send({status:"bad"})
+   if(req.body.at == "shoppingList"){
+      req.body.items.forEach(async element => {
+         try{
+            await usersModel.updateOne({_id: req.params.id, "shoppingList.item._id" :element }, {$set:{"shoppingList.item.$.section":req.body.category}})
+         }catch(error){
+            console.error(error)
+            doneSafe = false
+         }
+      })
+      if (doneSafe) res.status(200).send({status:"ok"})
+      else res.status(500).send({status:"bad"})
+   }else{
+      req.body.items.forEach(async element => {
+         try{
+            await usersModel.updateOne({_id: req.params.id, "groceryInventory.item._id" :element }, {$set:{"groceryInventory.item.$.section":req.body.category}})
+         }catch(error){
+            console.error(error)
+            doneSafe = false
+         }
+      })
+      if (doneSafe) res.status(200).send({status:"ok"})
+      else res.status(500).send({status:"bad"})
+   }
+   
 }
