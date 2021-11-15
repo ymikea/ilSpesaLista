@@ -73,7 +73,7 @@ exports.addToShoppingList = async (req, res)=>{
       try{
          if (req.body.quantity == "") req.body.quantity = 1
          await usersModel.updateOne({_id: req.params.id}, {$push:{ "shoppingList.item": req.body } });
-         await usersModel.updateOne({_id: req.params.id},{$addToSet: { "shoppingList.category": "Default" } } );
+         await usersModel.updateOne({_id: req.params.id},{$addToSet: { "shoppingList.category": req.body.category } } );
            res.status(200).send({status:"ok"})
         }catch(error){
            console.log(error)
