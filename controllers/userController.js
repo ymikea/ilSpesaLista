@@ -216,22 +216,43 @@ exports.updateItemCategory = async (req, res)=>{
 
 
 
-
+//Edit the menu bar titles
 exports.editMenuTitle = async (req, res)=>{
-   try{
-       let user = await usersModel.find({ _id: req.params.id})
-       let index = user[0].shoppingList.category.indexOf(req.body.oldTitle)
-       user[0].shoppingList.category[index] = req.body.newTitle
-       await user[0].save()
-       await usersModel.updateOne({_id: req.params.id},{$addToSet: { "shoppingList.category": req.body.category} } );
-       user[0].shoppingList.item.forEach(async (ele)=>{
-          if (ele.section == req.body.oldTitle){
-            await usersModel.updateMany({_id: req.params.id,  "shoppingList.item.section" :req.body.oldTitle }, {$set:{"shoppingList.item.$.section":req.body.newTitle}})
-          }
-       })
-       res.status(200).send({status:"ok"})
-    }catch(error){
-       console.error(error)
-     res.status(500).send({status:"bad", error: "Not edited, Please Try again!"})
-    }
+   if(req.body.at == "shoppingList"){
+      try{
+         let user = await usersModel.find({ _id: req.params.id})
+         let index = user[0].shoppingList.category.indexOf(req.body.oldTitle)
+         user[0].shoppingList.category[index] = req.body.newTitle
+         await user[0].save()
+         await usersModel.updateOne({_id: req.params.id},{$addToSet: { "shoppingList.category": req.body.category} } );
+         user[0].shoppingList.item.forEach(async (ele)=>{
+            if (ele.section == req.body.oldTitle){
+              await usersModel.updateMany({_id: req.params.id,  "shoppingList.item.section" :req.body.oldTitle }, {$set:{"shoppingList.item.$.section":req.body.newTitle}})
+            }
+         })
+         res.status(200).send({status:"ok"})
+      }catch(error){
+         console.error(error)
+       res.status(500).send({status:"bad", error: "Not edited, Please Try again!"})
+      }
+   }else{
+      try{
+         let user = await usersModel.find({ _id: req.params.id})
+         let index = user[0].groceryInventory.category.indexOf(req.body.oldTitle)
+         user[0].groceryInventory.category[index] = req.body.newTitle
+         await user[0].save()
+         await usersModel.updateOne({_id: req.params.id},{$addToSet: { "groceryInventory.category": req.body.category} } );
+         user[0].groceryInventory.item.forEach(async (ele)=>{
+            if (ele.section == req.body.oldTitle){
+              await usersModel.updateMany({_id: req.params.id,  "groceryInventory.item.section" :req.body.oldTitle }, {$set:{"groceryInventory.item.$.section":req.body.newTitle}})
+            }
+         })
+         res.status(200).send({status:"ok"})
+      }catch(error){
+         console.error(error)
+       res.status(500).send({status:"bad", error: "Not edited, Please Try again!"})
+      }
+   }
+
+   
 }
