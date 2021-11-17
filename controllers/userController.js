@@ -213,3 +213,25 @@ exports.updateItemCategory = async (req, res)=>{
    }
    
 }
+
+
+
+
+exports.editMenuTitle = async (req, res)=>{
+   try{
+       let user = await usersModel.find({ _id: req.params.id})
+       let index = user[0].shoppingList.category.indexOf(req.body.oldTitle)
+       user[0].shoppingList.category[index] = req.body.newTitle
+       await user[0].save()
+       await usersModel.updateOne({_id: req.params.id},{$addToSet: { "shoppingList.category": req.body.category} } );
+       user[0].shoppingList.item.forEach(async (ele)=>{
+          if (ele.section == req.body.oldTitle){
+            await usersModel.updateMany({_id: req.params.id,  "shoppingList.item.section" :req.body.oldTitle }, {$set:{"shoppingList.item.$.section":req.body.newTitle}})
+          }
+       })
+       res.status(200).send({status:"ok"})
+    }catch(error){
+       console.error(error)
+     res.status(500).send({status:"bad", error: "Not edited, Please Try again!"})
+    }
+}

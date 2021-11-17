@@ -45,6 +45,8 @@ router.route('/updateItemCategory/:id')
 router.route('/updateCategory/:id')
 .post(routeHelper.updateCategory)
 
+router.route('/editMenuTitle/:id')
+.post(routeHelper.editMenuTitle)
 
 
 module.exports = router;
