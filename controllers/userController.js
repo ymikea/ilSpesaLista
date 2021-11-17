@@ -232,7 +232,6 @@ exports.editMenuTitle = async (req, res)=>{
          })
          res.status(200).send({status:"ok"})
       }catch(error){
-         console.error(error)
        res.status(500).send({status:"bad", error: "Not edited, Please Try again!"})
       }
    }else{
@@ -249,10 +248,91 @@ exports.editMenuTitle = async (req, res)=>{
          })
          res.status(200).send({status:"ok"})
       }catch(error){
-         console.error(error)
        res.status(500).send({status:"bad", error: "Not edited, Please Try again!"})
       }
-   }
-
-   
+   }  
 }
+
+//Edit the menu bar titles
+exports.deleteMenuTitle = async (req, res)=>{
+if(req.body.at == "shoppingList"){
+   if(req.body.flag == "delAll"){
+      try{
+         let user = await usersModel.find({ _id: req.params.id})
+         let index = user[0].shoppingList.category.indexOf(req.body.title)
+         if (index > -1) {
+            user[0].shoppingList.category.splice(index, 1);
+         }
+         await user[0].save()
+         user[0].shoppingList.item.forEach(async (ele)=>{
+            if (ele.section == req.body.title){
+               await usersModel.updateOne({ _id: req.params.id},{$pull : { "shoppingList.item" : {"_id":ele._id} } } )
+            }
+         })
+         res.status(200).send({status:"ok"})
+      }catch(error){
+         res.status(500).send({status:"bad", error: "Not edited, Please Try again!"})
+      }
+      
+   }else{
+      try{
+         let user = await usersModel.find({ _id: req.params.id})
+         let index = user[0].shoppingList.category.indexOf(req.body.title)
+         if (index > -1) {
+            user[0].shoppingList.category.splice(index, 1);
+         }
+         await user[0].save()
+         user[0].shoppingList.item.forEach(async (ele)=>{
+            if (ele.section == req.body.title){
+               await usersModel.updateMany({_id: req.params.id,  "shoppingList.item.section" :req.body.title }, {$set:{"shoppingList.item.$.section":"Default"}})
+            }
+         })
+         res.status(200).send({status:"ok"})
+      }catch(error){
+         res.status(500).send({status:"bad", error: "Not edited, Please Try again!"})
+      }
+
+   }
+}else{
+   if(req.body.flag == "delAll"){
+      try{
+         let user = await usersModel.find({ _id: req.params.id})
+         let index = user[0].groceryInventory.category.indexOf(req.body.title)
+         if (index > -1) {
+            user[0].groceryInventory.category.splice(index, 1);
+         }
+         await user[0].save()
+         user[0].groceryInventory.item.forEach(async (ele)=>{
+            if (ele.section == req.body.title){
+               await usersModel.updateOne({ _id: req.params.id},{$pull : { "groceryInventory.item" : {"_id":ele._id} } } )
+            }
+         })
+         res.status(200).send({status:"ok"})
+      }catch(error){
+         res.status(500).send({status:"bad", error: "Not edited, Please Try again!"})
+      }
+      
+   }else{
+      try{
+         let user = await usersModel.find({ _id: req.params.id})
+         let index = user[0].groceryInventory.category.indexOf(req.body.title)
+         if (index > -1) {
+            user[0].groceryInventory.category.splice(index, 1);
+         }
+         await user[0].save()
+         user[0].groceryInventory.item.forEach(async (ele)=>{
+            if (ele.section == req.body.title){
+               await usersModel.updateMany({_id: req.params.id,  "groceryInventory.item.section" :req.body.title }, {$set:{"groceryInventory.item.$.section":"Default"}})
+            }
+         })
+         res.status(200).send({status:"ok"})
+      }catch(error){
+         res.status(500).send({status:"bad", error: "Not edited, Please Try again!"})
+      }
+
+   }
+}
+
+
+}
+

@@ -48,5 +48,8 @@ router.route('/updateCategory/:id')
 router.route('/editMenuTitle/:id')
 .post(routeHelper.editMenuTitle)
 
+router.route('/deleteMenuTitle/:id')
+.post(routeHelper.deleteMenuTitle)
 
+// deleteMenuTitle
 module.exports = router;
